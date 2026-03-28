@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="sidebar" class="user-sidebar p-3 shadow-sm rounded bg-white">
+  <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+    <img th:src="${user.avatarUrl != null ? user.avatarUrl : '/images/default-avatar.png'}"
+         class="rounded-circle me-3" width="50" height="50" alt="Avatar">
+    <div>
+      <div class="fw-bold text-truncate" style="max-width: 150px;" th:text="${user.username}">Username</div>
+      <a href="#" class="text-muted small text-decoration-none"><i class="bi bi-pencil-fill"></i> Sửa Hồ Sơ</a>
+    </div>
+  </div>
+
+  <div class="list-group list-group-flush user-menu">
+    <a th:href="@{/user/profile}" class="list-group-item list-group-item-action border-0 px-2 py-2.5 rounded"
+       th:classappend="${activePage == 'profile'} ? 'active' : ''">
+      <i class="bi bi-person me-2 text-primary fs-5"></i> Tài Khoản Của Tôi
+    </a>
+
+    <div class="ms-4 small" th:if="${activePage == 'profile' || activePage == 'addresses'}">
+      <a th:href="@{/user/profile}" class="d-block py-1 text-decoration-none text-secondary">Hồ Sơ</a>
+      <a th:href="@{/user/addresses}" class="d-block py-1 text-decoration-none text-danger fw-bold"
+         th:if="${activePage == 'addresses'}">Địa Chỉ</a>
+      <a th:href="@{/user/addresses}" class="d-block py-1 text-decoration-none text-secondary"
+         th:if="${activePage != 'addresses'}">Địa Chỉ</a>
+    </div>
+
+    <a th:href="@{/user/orders}" class="list-group-item list-group-item-action border-0 px-2 py-2.5 rounded"
+       th:classappend="${activePage == 'orders'} ? 'active' : ''">
+      <i class="bi bi-clipboard-check me-2 text-danger fs-5"></i> Đơn Mua
+    </a>
+  </div>
+</div>
+
+</body>
+</html>
