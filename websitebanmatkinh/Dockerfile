@@ -1,14 +1,26 @@
-# Giai đoạn 1: Build
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+# --- Giai đoạn 1: Build (Dùng Oracle JDK 25) ---
+FROM container-registry.oracle.com/java/jdk:25 AS build
 WORKDIR /app
-COPY . .
+
+# Cài đặt Maven
+RUN microdnf install -y tar gzip curl
+RUN curl -O https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz \
+    && tar -xzf apache-maven-3.9.6-bin.tar.gz -C /opt \
+    && ln -s /opt/apache-maven-3.9.6/bin/mvn /usr/bin/mvn
+
+# Copy và Build
+COPY pom.xml .
+COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Giai đoạn 2: Chạy
-FROM eclipse-temurin:21-jre-jammy
+# --- Giai đoạn 2: Chạy ứng dụng ---
+FROM container-registry.oracle.com/java/jdk:25
 WORKDIR /app
-# Copy file .war hoặc .jar (Dùng dấu * cho chắc chắn)
-COPY --from=build /app/target/*.war app.war || COPY --from=build /app/target/*.jar app.jar
+
+# SỬA LỖI TẠI ĐÂY: Dùng dấu * để copy bất kể là .jar hay .war mà không bị lỗi cú pháp
+COPY --from=build /app/target/*.?ar /app/app.run
+
 EXPOSE 8080
-# Chạy app (thử cả 2 đuôi file)
-ENTRYPOINT ["java", "-jar", "app.war"]
+
+# Chạy file bất kể tên gốc là gì
+ENTRYPOINT ["java", "-jar", "/app/app.run"]
