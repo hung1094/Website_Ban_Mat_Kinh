@@ -1,26 +1,22 @@
-# --- Giai đoạn 1: Build (Dùng Oracle JDK 25) ---
-FROM container-registry.oracle.com/java/jdk:25 AS build
+# --- Giai đoạn 1: Build dự án ---
+FROM maven:3.9.9-amazoncorretto-25-al2023 AS build
 WORKDIR /app
 
-# Cài đặt Maven
-RUN microdnf install -y tar gzip curl
-RUN curl -O https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz \
-    && tar -xzf apache-maven-3.9.6-bin.tar.gz -C /opt \
-    && ln -s /opt/apache-maven-3.9.6/bin/mvn /usr/bin/mvn
-
-# Copy và Build
+# Copy mã nguồn
 COPY pom.xml .
 COPY src ./src
+
+# Build tạo file (Hỗ trợ Java 25 trực tiếp)
 RUN mvn clean package -DskipTests
 
 # --- Giai đoạn 2: Chạy ứng dụng ---
-FROM container-registry.oracle.com/java/jdk:25
+FROM amazoncorretto:25-al2023-headless
 WORKDIR /app
 
-# SỬA LỖI TẠI ĐÂY: Dùng dấu * để copy bất kể là .jar hay .war mà không bị lỗi cú pháp
+# Copy file từ bước build sang (Dùng dấu * cho linh hoạt .jar/.war)
 COPY --from=build /app/target/*.?ar /app/app.run
 
 EXPOSE 8080
 
-# Chạy file bất kể tên gốc là gì
+# Chạy ứng dụng
 ENTRYPOINT ["java", "-jar", "/app/app.run"]
