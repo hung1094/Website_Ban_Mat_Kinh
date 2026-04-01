@@ -2,6 +2,7 @@ package phattrienungdungj2ee.websitebanmatkinh.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import phattrienungdungj2ee.websitebanmatkinh.services.ProductService;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -31,9 +33,11 @@ public class AdminController {
     // 1. TỔNG QUAN (DASHBOARD)
     @GetMapping("")
     public String dashboard(Model model) {
-        List<Order> allOrders = orderRepo.findAll();
+        // Lấy tất cả đơn hàng sắp xếp mới nhất lên đầu
+        List<Order> allOrders = orderRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
+
         double totalRevenue = allOrders.stream()
-                .filter(o -> !"CANCELLED".equals(o.getStatus()))
+                .filter(o -> !"CANCELLED".equalsIgnoreCase(o.getStatus()))
                 .mapToDouble(Order::getTotalPrice).sum();
 
         model.addAttribute("totalRevenue", totalRevenue);
@@ -41,9 +45,10 @@ public class AdminController {
         model.addAttribute("totalProducts", productRepo.count());
         model.addAttribute("totalUsers", userRepo.count());
 
-        // Chỉ lấy 5 đơn hàng gần nhất để hiển thị
-        List<Order> recentOrders = allOrders.size() > 5 ? allOrders.subList(allOrders.size() - 5, allOrders.size()) : allOrders;
+        // Lấy 5 đơn hàng gần nhất (xử lý an toàn tránh lỗi subList)
+        List<Order> recentOrders = allOrders.stream().limit(5).toList();
         model.addAttribute("recentOrders", recentOrders);
+
         model.addAttribute("activePage", "dashboard");
         return "admin/dashboard";
     }
@@ -51,7 +56,8 @@ public class AdminController {
     // 2. QUẢN LÝ SẢN PHẨM
     @GetMapping("/products")
     public String listProducts(Model model) {
-        model.addAttribute("listProducts", productRepo.findAll());
+        // Sắp xếp ID giảm dần để thấy kính mới thêm ở trên cùng
+        model.addAttribute("listProducts", productRepo.findAll(Sort.by(Sort.Direction.DESC, "id")));
         model.addAttribute("activePage", "products");
         return "admin/index";
     }
@@ -68,21 +74,18 @@ public class AdminController {
     public String saveProduct(@ModelAttribute("product") Product product,
                               @RequestParam(value = "imageFiles", required = false) MultipartFile[] files) {
         try {
-            if (product.getId() != null) {
-                Product oldProduct = productService.getById(product.getId());
-                if (files == null || files.length == 0 || files[0].isEmpty()) {
-                    product.setImageUrl(oldProduct.getImageUrl());
-                    product.setImages(oldProduct.getImages());
-                }
-            }
+            Product existingProduct = (product.getId() != null) ? productService.getById(product.getId()) : null;
 
+            // Xử lý Upload ảnh
             if (files != null && files.length > 0 && !files[0].isEmpty()) {
                 Path rootPath = Paths.get(uploadPath).toAbsolutePath().normalize();
                 if (!Files.exists(rootPath)) Files.createDirectories(rootPath);
+
                 List<ProductImage> newImages = new ArrayList<>();
                 for (int i = 0; i < files.length; i++) {
                     MultipartFile file = files[i];
                     if (file.isEmpty()) continue;
+
                     String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("\\s+", "_");
                     Path filePath = rootPath.resolve(fileName);
                     Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -91,11 +94,21 @@ public class AdminController {
                     img.setUrl("/uploads/" + fileName);
                     img.setProduct(product);
                     newImages.add(img);
+
                     if (i == 0) product.setImageUrl("/uploads/" + fileName);
                 }
                 product.setImages(newImages);
+            } else {
+                // Giữ lại ảnh cũ nếu không upload ảnh mới
+                if (existingProduct != null) {
+                    product.setImageUrl(existingProduct.getImageUrl());
+                    product.setImages(existingProduct.getImages());
+                }
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) {
+            System.err.println("Lỗi upload ảnh: " + e.getMessage());
+        }
+
         productService.save(product);
         return "redirect:/admin/products";
     }
@@ -103,6 +116,8 @@ public class AdminController {
     @GetMapping("/products/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Product product = productService.getById(id);
+        if (product == null) return "redirect:/admin/products";
+
         model.addAttribute("product", product);
         model.addAttribute("categories", categoryRepo.findAll());
         model.addAttribute("activePage", "products");
@@ -118,7 +133,7 @@ public class AdminController {
     // 3. QUẢN LÝ ĐƠN HÀNG
     @GetMapping("/orders")
     public String listOrders(Model model) {
-        model.addAttribute("listOrders", orderRepo.findAll());
+        model.addAttribute("listOrders", orderRepo.findAll(Sort.by(Sort.Direction.DESC, "id")));
         model.addAttribute("activePage", "orders");
         return "admin/orders";
     }

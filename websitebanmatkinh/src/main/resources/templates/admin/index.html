@@ -1,230 +1,158 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GENTLE Admin - Quản lý sản phẩm</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<head th:replace="~{admin/fragments :: admin_head('Quản lý Sản phẩm')}"></head>
+<style>
+    /* Custom Table Styling */
+    .table thead th {
+        background-color: #fafafa;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 2px;
+        font-weight: 800;
+        border-top: none;
+        padding: 20px 15px;
+        color: #888;
+    }
 
-    <style>
-        :root { --sidebar-width: 260px; --primary-color: #0d6efd; --dark-bg: #1e1e2d; }
-        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; overflow-x: hidden; color: #3f4254; }
+    .table tbody td {
+        padding: 20px 15px;
+        border-bottom: 1px solid #f1f1f1;
+        font-size: 0.9rem;
+    }
 
-        /* Sidebar */
-        .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; left: 0; top: 0; background: var(--dark-bg); color: #a2a3b7; z-index: 1000; border-right: 1px solid rgba(255,255,255,0.05); }
-        .brand-logo { padding: 25px; font-size: 1.25rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .sidebar .nav-link { color: #a2a3b7; padding: 12px 20px; border-radius: 8px; margin: 4px 15px; font-weight: 500; transition: 0.2s; display: flex; align-items: center; }
-        .sidebar .nav-link i { font-size: 1.2rem; }
-        .sidebar .nav-link:hover { background: rgba(255,255,255,0.05); color: white; }
-        .sidebar .nav-link.active { background: var(--primary-color); color: white; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); }
+    /* Product Image Frame */
+    .img-product-admin {
+        object-fit: cover;
+        border-radius: 0px; /* Square modern look */
+        border: 1px solid #eee;
+        padding: 2px;
+        background: #fff;
+    }
 
-        /* Main Content */
-        .main-content { margin-left: var(--sidebar-width); padding: 2rem; min-height: 100vh; }
+    /* Modern Buttons */
+    .btn-add-new {
+        background: #000;
+        color: #fff;
+        border-radius: 0;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 12px;
+        padding: 12px 25px;
+        border: 1px solid #000;
+        transition: 0.3s;
+    }
+    .btn-add-new:hover {
+        background: #fff;
+        color: #000;
+    }
 
-        /* Dashboard Cards */
-        .card-custom { border: none; border-radius: 12px; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05); transition: all 0.3s; }
-        .card-custom:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .icon-box { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .btn-action-outline {
+        border: 1px solid #eee;
+        color: #000;
+        border-radius: 0;
+        padding: 6px 12px;
+        transition: 0.2s;
+        background: #fff;
+    }
+    .btn-action-outline:hover {
+        background: #000;
+        color: #fff;
+        border-color: #000;
+    }
 
-        /* Table Area */
-        .table-area { background: white; border-radius: 12px; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05); overflow: hidden; }
-        .product-thumb { width: 60px; height: 45px; object-fit: cover; border-radius: 6px; background: #f3f6f9; }
-        .table thead th { background-color: #f8f9fa; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; color: #b5b5c3; padding: 15px; border: none; }
-        .table tbody td { padding: 15px; vertical-align: middle; border-bottom: 1px solid #f3f6f9; }
+    .btn-delete-outline:hover {
+        background: #ff0000;
+        border-color: #ff0000;
+        color: #fff;
+    }
 
-        /* Badges */
-        .badge-stock { padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 11px; display: inline-block; }
-    </style>
-</head>
+    /* Brand Tag */
+    .brand-tag {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #000;
+        background: #f0f0f0;
+        padding: 4px 10px;
+        display: inline-block;
+    }
+
+    /* Stock Status */
+    .stock-indicator {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+</style>
 <body>
-
-<div class="sidebar d-flex flex-column">
-    <div class="brand-logo fw-bold text-center">
-        <i class="bi bi-shield-check text-primary me-2"></i>GENTLE <span class="text-white-50">ADMIN</span>
-    </div>
-
-    <div class="mt-4 flex-grow-1">
-        <small class="text-uppercase px-4 mb-2 d-block fw-bold text-muted" style="font-size: 10px; opacity: 0.5;">Danh mục quản lý</small>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-                <a th:href="@{/admin}" class="nav-link" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
-                    <i class="bi bi-grid-1x2 me-3"></i> Tổng quan
-                </a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/admin/products}" class="nav-link active">
-                    <i class="bi bi-glasses me-3"></i> Sản phẩm
-                </a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/admin/orders}" class="nav-link">
-                    <i class="bi bi-receipt me-3"></i> Đơn mua
-                </a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/admin/users}" class="nav-link">
-                    <i class="bi bi-people me-3"></i> Khách hàng
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="p-3">
-        <a th:href="@{/}" class="nav-link bg-danger-subtle text-danger rounded-3 justify-content-center">
-            <i class="bi bi-box-arrow-left me-2"></i> Thoát Admin
-        </a>
-    </div>
-</div>
+<div th:replace="~{admin/fragments :: sidebar}"></div>
 
 <div class="main-content">
-
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-5">
         <div>
-            <h3 class="fw-bold mb-1">Quản lý kho hàng</h3>
-            <span class="text-muted small">Cập nhật thông tin và số lượng kính mắt trong hệ thống</span>
+            <h6 class="text-uppercase text-muted fw-800 mb-1" style="letter-spacing: 3px; font-size: 10px;">Inventory Management</h6>
+            <h2 class="fw-800 text-dark m-0" style="letter-spacing: -1px;">KHO HÀNG KÍNH MẮT</h2>
+            <span class="text-muted small fw-600">Hiện có <span class="text-dark fw-800" th:text="${#lists.size(listProducts)}">0</span> mẫu sản phẩm trong hệ thống</span>
         </div>
-        <a th:href="@{/admin/products/add}" class="btn btn-primary d-flex align-items-center px-4 py-2 rounded-3 shadow-sm">
-            <i class="bi bi-plus-lg me-2"></i> Thêm kính mới
+        <a th:href="@{/admin/products/add}" class="btn btn-add-new">
+            <i class="bi bi-plus-lg me-2"></i> THÊM MỚI
         </a>
     </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card card-custom p-4 bg-white text-center text-md-start">
-                <div class="d-md-flex align-items-center">
-                    <div class="icon-box bg-primary-subtle text-primary me-md-3 mx-auto mb-2 mb-md-0"><i class="bi bi-box-seam fs-4"></i></div>
-                    <div>
-                        <div class="text-muted small fw-medium">Tổng mặt hàng</div>
-                        <h3 class="fw-bold mb-0" th:text="${listProducts != null ? #lists.size(listProducts) : 0}">0</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card card-custom p-4 bg-white text-center text-md-start">
-                <div class="d-md-flex align-items-center">
-                    <div class="icon-box bg-success-subtle text-success me-md-3 mx-auto mb-2 mb-md-0"><i class="bi bi-stack fs-4"></i></div>
-                    <div>
-                        <div class="text-muted small fw-medium">Tổng tồn kho</div>
-                        <h3 class="fw-bold mb-0" th:text="${listProducts == null or listProducts.empty} ? 0 : ${#aggregates.sum(listProducts.![stock])}">0</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card card-custom p-4 bg-white text-center text-md-start">
-                <div class="d-md-flex align-items-center">
-                    <div class="icon-box bg-warning-subtle text-warning me-md-3 mx-auto mb-2 mb-md-0"><i class="bi bi-tags fs-4"></i></div>
-                    <div>
-                        <div class="text-muted small fw-medium">Thương hiệu</div>
-                        <h3 class="fw-bold mb-0">8+</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card card-custom p-4 bg-white text-center text-md-start">
-                <div class="d-md-flex align-items-center">
-                    <div class="icon-box bg-info-subtle text-info me-md-3 mx-auto mb-2 mb-md-0"><i class="bi bi-lightning-charge fs-4"></i></div>
-                    <div>
-                        <div class="text-muted small fw-medium">Đang kinh doanh</div>
-                        <h3 class="fw-bold mb-0">Active</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="table-area">
-        <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center bg-white">
-            <h5 class="fw-bold mb-0">Danh sách kính mắt</h5>
-            <div class="input-group input-group-sm w-auto">
-                <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control bg-light border-0" placeholder="Tìm theo tên hoặc ID...">
-            </div>
-        </div>
-
+    <div class="card border shadow-none bg-white">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table align-middle mb-0">
                 <thead>
                 <tr>
-                    <th class="ps-4">ID</th>
-                    <th>Thông tin sản phẩm</th>
+                    <th class="ps-4">Mã số</th>
+                    <th>Sản phẩm</th>
                     <th>Thương hiệu</th>
                     <th>Giá bán</th>
-                    <th>Trạng thái tồn kho</th>
+                    <th>Tồn kho</th>
                     <th class="text-end pe-4">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="p : ${listProducts}">
-                    <td class="ps-4 fw-bold text-muted" th:text="'#' + ${p.id}"></td>
+                    <td class="ps-4 fw-800 text-muted" style="font-size: 12px;" th:text="'#' + ${p.id}"></td>
                     <td>
                         <div class="d-flex align-items-center">
-                            <img th:src="${p.imageUrl != null and p.imageUrl != '' ? p.imageUrl : 'https://placehold.co/100x75?text=No+Image'}"
-                                 class="product-thumb me-3 border"
-                                 onerror="this.src='https://placehold.co/100x75?text=Error'">
-                            <div>
-                                <div class="fw-bold text-dark" th:text="${p.name}">Tên sản phẩm</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Kính cao cấp</div>
-                            </div>
+                            <img th:src="${p.imageUrl != null ? p.imageUrl : 'https://placehold.co/60x45'}"
+                                 class="img-product-admin me-3" width="70" height="50">
+                            <div class="fw-800 text-dark" style="font-size: 0.95rem;" th:text="${p.name}">Tên sản phẩm</div>
                         </div>
                     </td>
-                    <td><span class="badge bg-light text-secondary border" th:text="${p.brand}">Brand</span></td>
+                    <td><span class="brand-tag" th:text="${p.brand}">Brand</span></td>
+                    <td><span class="fw-800" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span></td>
                     <td>
-                        <span class="fw-bold text-dark" th:text="${p.price != null ? #numbers.formatDecimal(p.price, 0, 'POINT', 0, 'COMMA') : '0'}"></span>
-                        <span class="text-primary fw-bold">₫</span>
-                    </td>
-                    <td>
-                        <div th:if="${p.stock > 10}">
-                                <span class="badge-stock bg-success-subtle text-success border border-success-subtle">
-                                    <i class="bi bi-check-circle-fill me-1"></i> Còn hàng (<span th:text="${p.stock}"></span>)
-                                </span>
-                        </div>
-                        <div th:if="${p.stock <= 10 and p.stock > 0}">
-                                <span class="badge-stock bg-warning-subtle text-warning border border-warning-subtle">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Sắp hết (<span th:text="${p.stock}"></span>)
-                                </span>
-                        </div>
-                        <div th:if="${p.stock <= 0}">
-                                <span class="badge-stock bg-danger-subtle text-danger border border-danger-subtle">
-                                    <i class="bi bi-x-circle-fill me-1"></i> Hết hàng
-                                </span>
+                        <div class="stock-indicator">
+                            <span th:class="${p.stock > 10 ? 'text-dark' : 'text-danger'}">
+                                <i class="bi bi-square-fill me-2" style="font-size: 8px;"></i>
+                                <span th:text="${p.stock}"></span>
+                            </span>
                         </div>
                     </td>
                     <td class="text-end pe-4">
-                        <div class="btn-group shadow-sm">
-                            <a th:href="@{/admin/products/edit/{id}(id=${p.id})}" class="btn btn-sm btn-white text-warning border" title="Chỉnh sửa">
-                                <i class="bi bi-pencil-fill"></i>
+                        <div class="btn-group">
+                            <a th:href="@{/admin/products/edit/{id}(id=${p.id})}" class="btn btn-action-outline me-1" title="Chỉnh sửa">
+                                <i class="bi bi-pencil-square"></i>
                             </a>
-                            <a th:href="@{/admin/products/delete/{id}(id=${p.id})}"
-                               class="btn btn-sm btn-white text-danger border"
-                               onclick="return confirm('Xác nhận xóa sản phẩm này? Thao tác này không thể hoàn tác.')" title="Xóa">
-                                <i class="bi bi-trash-fill"></i>
+                            <a th:href="@{/admin/products/delete/{id}(id=${p.id})}" class="btn btn-action-outline btn-delete-outline text-danger"
+                               onclick="return confirm('Xác nhận xóa sản phẩm này khỏi kho hàng?')" title="Xóa">
+                                <i class="bi bi-trash3"></i>
                             </a>
                         </div>
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(listProducts)}">
-                    <td colspan="6" class="text-center py-5">
-                        <div class="py-4">
-                            <i class="bi bi-inbox text-muted display-1 opacity-25"></i>
-                            <h5 class="mt-3 text-muted">Chưa có sản phẩm nào trong kho</h5>
-                            <a th:href="@{/admin/products/add}" class="btn btn-sm btn-primary mt-2">Thêm ngay</a>
-                        </div>
-                    </td>
+                    <td colspan="6" class="text-center py-5 text-muted fw-600">Không tìm thấy sản phẩm nào trong kho.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <div class="px-4 py-3 bg-light border-top text-muted small">
-            Hiển thị <span th:text="${#lists.size(listProducts)}">0</span> sản phẩm trong kho.
-        </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

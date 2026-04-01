@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="main-layout(title, content)">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:replace="${title}">GENTLE GLASSES</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-dark: #000000;
+      --subtle-gray: #f9f9f9;
+      --border-color: #eeeeee;
+      --radius-custom: 25px;
+    }
+
+    body {
+      background-color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--primary-dark);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Container chính */
+    .user-container {
+      padding-top: 60px;
+      padding-bottom: 80px;
+    }
+
+    /* Sidebar Styling */
+    .sidebar-wrapper {
+      background: var(--subtle-gray);
+      border-radius: var(--radius-custom);
+      padding: 30px 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .avatar-sidebar {
+      width: 55px;
+      height: 55px;
+      object-fit: cover;
+      border-radius: 18px; /* Bo nhẹ kiểu hiện đại */
+      border: 2px solid #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .user-sidebar .list-group-item {
+      border: none;
+      padding: 14px 20px;
+      background: transparent;
+      transition: 0.3s;
+      border-radius: 15px !important;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .user-sidebar .list-group-item:hover {
+      background-color: rgba(0,0,0,0.03);
+      color: var(--primary-dark);
+      transform: translateX(5px);
+    }
+
+    .user-sidebar .list-group-item.active {
+      color: white;
+      background-color: var(--primary-dark) !important;
+      font-weight: 600;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Content Area Styling */
+    .content-wrapper {
+      background: white;
+      border-radius: var(--radius-custom);
+      border: 1px solid var(--border-color);
+      padding: 40px;
+      min-height: 500px;
+    }
+
+    /* Helper classes để các trang con dùng chung */
+    .section-header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .section-header h4 {
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 5px;
+    }
+
+    .btn-gentle {
+      background: var(--primary-dark);
+      color: white;
+      border-radius: 12px;
+      padding: 10px 25px;
+      border: none;
+      transition: 0.3s;
+    }
+    .btn-gentle:hover {
+      background: #333;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container user-container">
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="sidebar-wrapper shadow-sm">
+        <div class="d-flex align-items-center mb-4 px-2">
+          <img th:src="${user.avatarUrl != null ? user.avatarUrl : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}"
+               class="avatar-sidebar">
+          <div class="ms-3 overflow-hidden">
+            <div class="fw-bold text-truncate" th:text="${user.username}">Username</div>
+            <a th:href="@{/user/profile}" class="text-muted small text-decoration-none">
+              <i class="bi bi-pencil-square"></i> Cập nhật hồ sơ
+            </a>
+          </div>
+        </div>
+
+        <div class="list-group user-sidebar">
+          <a th:href="@{/user/profile}" class="list-group-item list-group-item-action"
+             th:classappend="${activePage == 'profile' ? 'active' : ''}">
+            <i class="bi bi-person-circle me-3"></i> Hồ sơ của tôi
+          </a>
+          <a th:href="@{/user/addresses}" class="list-group-item list-group-item-action"
+             th:classappend="${activePage == 'addresses' ? 'active' : ''}">
+            <i class="bi bi-geo-alt me-3"></i> Địa chỉ giao hàng
+          </a>
+          <a th:href="@{/user/orders}" class="list-group-item list-group-item-action"
+             th:classappend="${activePage == 'orders' ? 'active' : ''}">
+            <i class="bi bi-bag-check me-3"></i> Lịch sử đơn mua
+          </a>
+
+          <div class="my-3 border-top opacity-50"></div>
+
+          <a href="/products" class="list-group-item list-group-item-action text-muted">
+            <i class="bi bi-house-door me-3"></i> Quay về trang chủ
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="content-wrapper shadow-sm">
+        <div th:replace="${content}">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

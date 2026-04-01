@@ -1,98 +1,169 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Quản lý đơn hàng | EyeGlass Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        body { background-color: #f8f9fe; font-family: 'Inter', sans-serif; }
-        .main-content { padding: 2rem; }
-        .card-table { border: none; border-radius: 1rem; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-        .table thead th {
-            background-color: #f6f9fc;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            padding: 1.25rem 1rem;
-            color: #8898aa;
-        }
-        .badge-soft { font-weight: 600; padding: 0.5em 0.8em; border-radius: 50px; }
-        .order-id { color: #5e72e4; font-weight: 700; text-decoration: none; }
-        .btn-action { width: 35px; height: 35px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .filter-tab { transition: all 0.3s; border: 1px solid #dee2e6; color: #525f7f; }
-        .filter-tab.active { background-color: #5e72e4; color: white; border-color: #5e72e4; }
-    </style>
-</head>
+<head th:replace="~{admin/fragments :: admin_head('Quản lý Đơn hàng')}"></head>
+<style>
+    /* Filter Tabs */
+    .filter-tabs .btn {
+        border-radius: 0;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1px solid #eee;
+        background: #fff;
+        color: #888;
+        padding: 10px 25px;
+        margin-right: -1px; /* Nối liền các nút */
+        transition: 0.2s;
+    }
+    .filter-tabs .btn:hover { background: #fafafa; color: #000; border-color: #ddd; z-index: 1; }
+    .filter-tabs .btn.active {
+        background: #000;
+        color: #fff;
+        border-color: #000;
+        z-index: 2;
+    }
+
+    /* Table Styling */
+    .table thead th {
+        background-color: #fafafa;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 2px;
+        font-weight: 800;
+        border-top: none;
+        padding: 20px 15px;
+        color: #888;
+    }
+
+    .table tbody td {
+        padding: 20px 15px;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    /* Order Status Indicators */
+    .order-status {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 6px 12px;
+        display: inline-flex;
+        align-items: center;
+    }
+    .status-pending { background: #f8f8f8; color: #999; border: 1px solid #eee; }
+    .status-shipping { background: #000; color: #fff; }
+    .status-completed { background: #fff; color: #000; border: 1px solid #000; }
+    .status-cancelled { color: #ff0000; border: 1px solid #ff0000; background: #fff; }
+
+    /* Action Button */
+    .btn-action-view {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #eee;
+        color: #000;
+        background: #fff;
+        transition: 0.3s;
+    }
+    .btn-action-view:hover {
+        background: #000;
+        color: #fff;
+        border-color: #000;
+        transform: rotate(90deg); /* Hiệu ứng xoay nhẹ khi hover */
+    }
+
+    .btn-excel {
+        border-radius: 0;
+        font-weight: 800;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1px solid #000;
+        background: #fff;
+        color: #000;
+        padding: 10px 20px;
+        transition: 0.3s;
+    }
+    .btn-excel:hover { background: #000; color: #fff; }
+</style>
 <body>
 
+<div th:replace="~{admin/fragments :: sidebar}"></div>
+
 <div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-end mb-5">
         <div>
-            <h3 class="fw-bold text-dark mb-1">Quản lý đơn hàng</h3>
-            <p class="text-muted small mb-0">Theo dõi, duyệt và in hóa đơn cho khách hàng.</p>
+            <h6 class="text-uppercase text-muted fw-800 mb-1" style="letter-spacing: 3px; font-size: 10px;">Sales Log</h6>
+            <h2 class="fw-800 text-dark m-0" style="letter-spacing: -1px;">QUẢN LÝ ĐƠN HÀNG</h2>
         </div>
-        <button class="btn btn-white shadow-sm border rounded-pill px-4">
-            <i class="bi bi-file-earmark-excel-fill text-success me-2"></i> Xuất Excel
+        <button class="btn btn-excel">
+            <i class="bi bi-download me-2"></i> XUẤT EXCEL (CSV)
         </button>
     </div>
 
-    <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
-        <button class="btn btn-sm rounded-pill px-4 filter-tab active">Tất cả</button>
-        <button class="btn btn-sm rounded-pill px-4 filter-tab bg-white">Chờ xử lý</button>
-        <button class="btn btn-sm rounded-pill px-4 filter-tab bg-white">Đang giao</button>
-        <button class="btn btn-sm rounded-pill px-4 filter-tab bg-white">Hoàn tất</button>
+    <div class="d-flex filter-tabs mb-4">
+        <a th:href="@{/admin/orders}" class="btn active">Tất cả</a>
+        <button class="btn">Chờ xử lý</button>
+        <button class="btn">Đang giao</button>
+        <button class="btn">Hoàn tất</button>
+        <button class="btn">Đã hủy</button>
     </div>
 
-    <div class="card card-table overflow-hidden">
+    <div class="card border shadow-none bg-white">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 bg-white">
+            <table class="table align-middle mb-0">
                 <thead>
                 <tr>
                     <th class="ps-4">Mã đơn</th>
-                    <th>Ngày đặt</th>
+                    <th>Thời gian đặt</th>
                     <th>Khách hàng</th>
-                    <th>Phương thức</th>
-                    <th>Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Tổng cộng</th>
                     <th>Trạng thái</th>
-                    <th class="text-center">Chi tiết</th>
+                    <th class="text-end pe-4">Chi tiết</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="order : ${listOrders}">
-                    <td class="ps-4">
-                        <span class="order-id" th:text="'#ORD-' + ${order.id}"></span>
-                    </td>
-                    <td class="text-muted small" th:text="${order.orderDate != null ? #temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm') : '---'}"></td>
+                    <td class="ps-4 fw-800" style="font-size: 13px;" th:text="'#ORD-' + ${order.id}"></td>
                     <td>
-                        <div class="fw-bold text-dark" th:text="${order.customerName}"></div>
-                        <small class="text-muted" th:text="${order.phone}"></small>
+                        <div class="text-dark fw-600" th:text="${order.orderDate != null ? #temporals.format(order.orderDate, 'dd.MM.yyyy') : '--. --. ----'}"></div>
+                        <div class="text-muted small" th:text="${order.orderDate != null ? #temporals.format(order.orderDate, 'HH:mm') : ''}"></div>
                     </td>
                     <td>
-                            <span class="badge bg-light text-dark fw-normal border">
-                                <i class="bi bi-wallet2 me-1"></i> <span th:text="${order.paymentMethod}"></span>
-                            </span>
+                        <div class="fw-800 text-dark" style="font-size: 0.9rem;" th:text="${order.customerName}"></div>
+                        <div class="text-muted small fw-600" th:text="${order.phone}"></div>
                     </td>
                     <td>
-                        <span class="fw-bold text-dark" th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA') + ' ₫'}"></span>
+                        <span class="text-uppercase fw-800" style="font-size: 10px; color: #555;">
+                            <i class="bi bi-credit-card-2-back me-1"></i> <span th:text="${order.paymentMethod}"></span>
+                        </span>
                     </td>
                     <td>
-                            <span class="badge badge-soft"
-                                  th:classappend="${order.status == 'SHIPPING' ? 'bg-info-subtle text-info' : (order.status == 'PENDING' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success')}"
-                                  th:text="${order.status}">
-                            </span>
+                        <span class="fw-800 text-dark" th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></span>
                     </td>
-                    <td class="text-center">
-                        <a th:href="@{/admin/orders/detail/{id}(id=${order.id})}" class="btn-action btn-outline-primary border">
-                            <i class="bi bi-eye-fill"></i>
+                    <td>
+                        <span class="order-status"
+                              th:classappend="${order.status == 'SHIPPING' ? 'status-shipping' : (order.status == 'PENDING' ? 'status-pending' : (order.status == 'CANCELLED' ? 'status-cancelled' : 'status-completed'))}"
+                              th:text="${order.status}">
+                        </span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <a th:href="@{/admin/orders/detail/{id}(id=${order.id})}" class="btn-action-view">
+                            <i class="bi bi-arrow-up-right"></i>
                         </a>
                     </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(listOrders)}">
+                    <td colspan="7" class="text-center py-5 text-muted fw-600">Hệ thống chưa ghi nhận đơn hàng nào.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-
 </body>
 </html>

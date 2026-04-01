@@ -20,7 +20,6 @@ public class AuthController {
         return "login";
     }
 
-    // XỬ LÝ ĐĂNG NHẬP
     @PostMapping("/login")
     public String login(@RequestParam String username,
                         @RequestParam String password,
@@ -30,13 +29,21 @@ public class AuthController {
         var userOpt = userRepository.findByUsername(username);
 
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-            // Lưu thông tin user vào Session để dùng ở trang Checkout
-            session.setAttribute("loggedInUser", userOpt.get());
+            User user = userOpt.get();
 
-            // Nếu đăng nhập từ giỏ hàng, chuyển đến checkout. Nếu không, về trang chủ
-            return "redirect:/products";
+            // 1. Lưu thông tin user vào Session
+            session.setAttribute("loggedInUser", user);
+
+            // 2. Kiểm tra Role để điều hướng (Redirect)
+            // Lưu ý: So sánh chuỗi nên dùng .equals() hoặc .equalsIgnoreCase() cho an toàn
+            if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+                return "redirect:/admin"; // Chuyển đến trang dashboard của admin
+            } else {
+                return "redirect:/products"; // Khách hàng bình thường vào trang sản phẩm
+            }
         }
 
+        // Nếu sai tài khoản/mật khẩu
         model.addAttribute("error", "Tài khoản hoặc mật khẩu không chính xác!");
         return "login";
     }

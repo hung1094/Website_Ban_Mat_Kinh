@@ -3,126 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đặt hàng thành công - GENTLE GLASSES</title>
+    <title>Đặt hàng thành công | GENTLE GLASSES</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent-color: #ee4d2d; }
-        body { background-color: #f4f7f6; min-height: 100vh; display: flex; align-items: center; font-family: 'Inter', sans-serif; }
+        :root {
+            --primary-dark: #000000;
+            --subtle-gray: #f9f9f9;
+            --border-color: #eeeeee;
+        }
+
+        body {
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--primary-dark);
+        }
 
         .success-card {
-            max-width: 650px;
+            max-width: 600px;
             margin: auto;
             background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-            border: none;
-            padding: 50px 40px;
-            position: relative;
-            overflow: hidden;
+            border-radius: 40px; /* Bo tròn cực đại */
+            border: 1px solid var(--border-color);
+            padding: 60px 40px;
+            text-align: center;
         }
 
-        /* Hiệu ứng tia sáng phía trên */
-        .success-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-        }
-
-        .checkmark-wrapper {
-            width: 90px;
-            height: 90px;
-            background-color: #e6fcf5;
-            color: #0ca678;
+        /* Biểu tượng túi đồ tối giản */
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary-dark);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: 30px;
             margin: 0 auto 30px;
-            font-size: 45px;
-            animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 32px;
+            animation: cubic-bezier(0.16, 1, 0.3, 1) 0.8s slideUp;
         }
 
-        @keyframes scaleIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-weight: 200;
+            letter-spacing: -1px;
+            font-size: 2rem;
+            text-transform: uppercase;
         }
 
         .order-info-box {
-            background-color: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: left;
-            margin-bottom: 30px;
+            background-color: var(--subtle-gray);
+            border-radius: 25px;
+            padding: 30px;
+            margin: 30px 0;
+            border: none;
         }
 
-        .btn-home { background-color: #212529; color: white; transition: 0.3s; }
-        .btn-home:hover { background-color: #444; color: white; transform: translateY(-2px); }
+        .label-sm {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #888;
+            display: block;
+            margin-bottom: 5px;
+        }
 
-        .btn-orders { border: 2px solid #212529; color: #212529; font-weight: 600; }
-        .btn-orders:hover { background-color: #f8f9fa; color: #212529; }
+        /* Nút bấm bo tròn đồng bộ */
+        .btn-black {
+            background-color: var(--primary-dark);
+            color: white;
+            border-radius: 18px;
+            padding: 15px 35px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.4s;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-black:hover {
+            background-color: #333;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-dark);
+            border: 1.5px solid var(--primary-dark);
+            border-radius: 18px;
+            padding: 15px 35px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.4s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-outline:hover {
+            background-color: var(--subtle-gray);
+        }
+
+        .badge-status {
+            font-size: 0.7rem;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="card success-card text-center">
-        <div class="checkmark-wrapper">
-            <i class="bi bi-bag-check-fill"></i>
+<div class="container py-5">
+    <div class="success-card shadow-sm">
+        <div class="icon-box">
+            <i class="bi bi-check2-all"></i>
         </div>
 
-        <h2 class="fw-bold mb-3">CẢM ƠN BẠN ĐÃ ĐẶT HÀNG!</h2>
-        <p class="text-muted px-lg-5 mb-4">
-            Chào <strong th:text="${session.loggedInUser.fullName}">Khách hàng</strong>,
-            đơn hàng của bạn đã được hệ thống tiếp nhận thành công. Chúng tôi sẽ xử lý và giao hàng sớm nhất có thể.
+        <h2 class="mb-3">Đặt hàng thành công</h2>
+        <p class="text-muted px-lg-4 mb-4 small">
+            Chào <span class="fw-bold text-dark" th:text="${session.loggedInUser.fullName}">Khách hàng</span>,
+            GENTLE đã nhận đơn hàng của bạn. Chúng tôi sẽ sớm liên hệ để xác nhận và giao kính đến bạn.
         </p>
 
-        <div class="order-info-box border" th:if="${order != null}">
-            <div class="row g-3">
+        <div class="order-info-box text-start" th:if="${order != null}">
+            <div class="row g-4">
+                <div class="col-6 border-end">
+                    <span class="label-sm">Mã đơn hàng</span>
+                    <strong th:text="'#' + ${order.id}">#12345</strong>
+                </div>
                 <div class="col-6">
-                    <span class="small text-muted text-uppercase d-block">Mã đơn hàng</span>
-                    <strong class="text-dark" th:text="'#' + ${order.id}">#12345</strong>
+                    <span class="label-sm">Thanh toán</span>
+                    <span th:if="${order.paymentMethod == 'COD'}" class="badge-status bg-white border text-dark">TIỀN MẶT</span>
+                    <span th:if="${order.paymentMethod == 'MOMO'}" class="badge-status bg-white border text-primary">MOMO</span>
                 </div>
-                <div class="col-6 text-end">
-                    <span class="small text-muted text-uppercase d-block">Trạng thái</span>
-                    <span th:if="${order.paymentMethod == 'COD'}" class="badge bg-warning text-dark px-2">Chờ xác nhận (COD)</span>
-                    <span th:if="${order.paymentMethod == 'MOMO'}" class="badge bg-primary px-2">Chờ thanh toán MoMo</span>
+
+                <div class="col-12 border-top pt-4">
+                    <span class="label-sm">Thông tin nhận hàng</span>
+                    <p class="mb-1 small fw-bold" th:text="${order.customerName} + ' • ' + ${order.phone}"></p>
+                    <p class="mb-0 small text-muted lh-base" th:text="${order.address}"></p>
                 </div>
-                <div class="col-12 border-top pt-2">
-                    <span class="small text-muted text-uppercase d-block">Người nhận & Địa chỉ</span>
-                    <p class="mb-0 small fw-bold">
-                        <span th:text="${order.customerName}">Nguyễn Văn A</span> - <span th:text="${order.phone}">090...</span>
-                    </p>
-                    <p class="mb-0 small text-secondary" th:text="${order.address}">Địa chỉ nhận hàng...</p>
-                </div>
-                <div class="col-12 border-top pt-2 d-flex justify-content-between align-items-center">
-                    <span class="small text-muted text-uppercase">Tổng thanh toán</span>
-                    <span class="fs-5 fw-bold text-danger"
-                          th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+
+                <div class="col-12 border-top pt-4 d-flex justify-content-between align-items-center">
+                    <span class="label-sm mb-0">Tổng cộng</span>
+                    <span class="fs-4 fw-bold" th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
                 </div>
             </div>
         </div>
 
-        <div class="alert alert-info border-0 bg-light mb-4" style="border-left: 4px solid #0dcaf0 !important;">
-            <p class="mb-0 small text-start">
-                <i class="bi bi-info-circle-fill me-2"></i>
-                Một email xác nhận chi tiết đơn hàng đã được gửi đến địa chỉ email đăng ký của bạn.
-            </p>
-        </div>
-
-        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-            <a th:href="@{/}" class="btn btn-home btn-lg px-5 rounded-pill fw-bold shadow-sm">
+        <div class="d-grid gap-3 d-md-flex justify-content-md-center mb-5">
+            <a th:href="@{/}" class="btn btn-black px-4">
                 Tiếp tục mua sắm
             </a>
-            <a th:href="@{/user/orders}" class="btn btn-orders btn-lg px-5 rounded-pill fw-bold">
-                Kiểm tra đơn hàng
+            <a th:href="@{/user/orders}" class="btn btn-outline px-4">
+                Lịch sử đơn hàng
             </a>
         </div>
 
-        <div class="mt-5 pt-3">
-            <p class="text-muted small mb-0">Bạn cần hỗ trợ gấp? Gọi ngay Hotline: <strong class="text-dark">1900 88xx</strong></p>
+        <div class="pt-4 border-top">
+            <div class="d-flex justify-content-center gap-4 text-muted small">
+                <span><i class="bi bi-telephone me-1"></i> 1900 88xx</span>
+                <span><i class="bi bi-envelope me-1"></i> support@gentle.com</span>
+            </div>
         </div>
     </div>
 </div>

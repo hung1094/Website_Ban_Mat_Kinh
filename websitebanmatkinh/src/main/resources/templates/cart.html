@@ -2,93 +2,213 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Giỏ hàng - GENTLE GLASSES</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng | GENTLE GLASSES</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600;800&display=swap" rel="stylesheet">
 
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .cart-wrapper { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-        .product-img { width: 100px; height: 75px; object-fit: cover; border-radius: 8px; }
-        .table thead { background-color: #212529; color: white; }
-        .btn-checkout { background: #000; color: #fff; transition: 0.3s; }
-        .btn-checkout:hover { background: #333; transform: translateY(-2px); }
+        :root {
+            --primary-dark: #000000;
+            --subtle-gray: #f5f5f7;
+            --border-color: #e5e5e5;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--primary-dark);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Tiêu đề lớn, mỏng kiểu Fashion */
+        .cart-header {
+            padding: 80px 0 40px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .cart-header h1 {
+            font-weight: 200;
+            letter-spacing: -2px;
+            font-size: 3.5rem;
+        }
+
+        /* Bảng giỏ hàng kiểu hiện đại */
+        .cart-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 20px;
+        }
+        .cart-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: #888;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .cart-item-row {
+            transition: all 0.3s ease;
+        }
+
+        .product-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        .product-img-box {
+            width: 150px;
+            height: 100px;
+            background: var(--subtle-gray);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .product-img-box img {
+            width: 80%;
+            mix-blend-mode: multiply; /* Giúp ảnh tách nền trắng mượt hơn */
+        }
+
+        /* Input số lượng tối giản */
+        .qty-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            width: fit-content;
+            border-radius: 0; /* Vuông vức kiểu tối giản */
+        }
+        .qty-input {
+            width: 45px;
+            border: none;
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 8px 0;
+        }
+        .btn-update-cart {
+            border: none;
+            background: none;
+            padding: 0 10px;
+            font-size: 0.8rem;
+            color: #888;
+            transition: 0.2s;
+        }
+        .btn-update-cart:hover { color: #000; }
+
+        /* Tổng tiền bên dưới */
+        .cart-footer {
+            margin-top: 50px;
+            padding: 40px 0;
+            border-top: 1px solid var(--primary-dark);
+        }
+
+        .total-label { font-weight: 200; font-size: 1.2rem; }
+        .total-amount { font-weight: 800; font-size: 2.2rem; letter-spacing: -1px; }
+
+        /* Nút bấm thanh toán cực lớn */
+        .btn-black {
+            background: var(--primary-dark);
+            color: #fff;
+            border: none;
+            padding: 20px 60px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: 0.4s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-black:hover {
+            background: #333;
+            padding-right: 80px;
+        }
+
+        .btn-remove {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .btn-remove:hover { color: #ff4444; }
+
+        @media (max-width: 768px) {
+            .cart-header h1 { font-size: 2.5rem; }
+            .product-img-box { width: 100px; height: 70px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container py-5">
-    <div class="cart-wrapper p-4 p-md-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0"><i class="bi bi-cart3"></i> Giỏ hàng của bạn</h2>
-            <a href="/products" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left"></i> Tiếp tục mua sắm
+<div class="container">
+    <header class="cart-header d-flex justify-content-between align-items-end">
+        <h1 class="mb-0">Shopping Cart</h1>
+        <p class="text-muted mb-2">GENTLE GLASSES &copy; 2026</p>
+    </header>
+
+    <div class="py-4">
+        <table class="cart-table">
+            <thead>
+            <tr>
+                <th style="width: 50%;">Sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th class="text-end">Tổng</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="cart-item-row" th:each="item : ${cartItems}">
+                <td>
+                    <div class="product-info-cell">
+                        <div class="product-img-box">
+                            <img th:src="${item.imageUrl}" alt="Kính">
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1" th:text="${item.name}"></h5>
+                            <a th:href="@{'/cart/remove/' + ${item.productId}}" class="btn-remove text-uppercase">Gỡ bỏ</a>
+                        </div>
+                    </div>
+                </td>
+                <td class="fw-light" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                <td>
+                    <form th:action="@{/cart/update}" method="post">
+                        <input type="hidden" name="id" th:value="${item.productId}">
+                        <div class="qty-wrapper">
+                            <input type="number" name="qty" th:value="${item.quantity}" min="1" class="qty-input">
+                            <button type="submit" class="btn-update-cart border-start">LƯU</button>
+                        </div>
+                    </form>
+                </td>
+                <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(item.getAmount(), 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(cartItems)}">
+                <td colspan="4" class="text-center py-5">
+                    <p class="fs-4 fw-light text-muted">Túi đồ của bạn đang trống.</p>
+                    <a href="/products" class="btn-black">MUA SẮM NGAY</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cart-footer row align-items-center" th:if="${!#lists.isEmpty(cartItems)}">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <a href="/products" class="text-dark text-decoration-none small fw-bold">
+                <i class="bi bi-chevron-left"></i> TIẾP TỤC CHỌN ĐỒ
             </a>
         </div>
-
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                <tr>
-                    <th class="py-3 px-4">Ảnh</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Giá</th>
-                    <th style="width: 150px;">Số lượng</th>
-                    <th>Thành tiền</th>
-                    <th class="text-center">Hành động</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${cartItems}">
-                    <td class="px-4">
-                        <img th:src="${item.imageUrl}" class="product-img shadow-sm" alt="Kính">
-                    </td>
-                    <td>
-                        <div class="fw-bold" th:text="${item.name}">Tên kính</div>
-                        <small class="text-muted">ID: <span th:text="${item.productId}"></span></small>
-                    </td>
-                    <td th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
-                    <td>
-                        <form th:action="@{/cart/update}" method="post" class="d-flex">
-                            <input type="hidden" name="id" th:value="${item.productId}">
-                            <input type="number" name="qty" th:value="${item.quantity}" min="1"
-                                   class="form-control form-control-sm me-1" style="width: 60px;">
-                            <button class="btn btn-sm btn-dark"><i class="bi bi-check-lg"></i></button>
-                        </form>
-                    </td>
-                    <td class="fw-bold text-danger"
-                        th:text="${#numbers.formatDecimal(item.getAmount(), 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
-                    <td class="text-center">
-                        <a th:href="@{'/cart/remove/' + ${item.productId}}"
-                           class="btn btn-sm btn-outline-danger rounded-pill">
-                            <i class="bi bi-x-lg"></i> Xóa
-                        </a>
-                    </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(cartItems)}">
-                    <td colspan="6" class="text-center py-5 text-muted">
-                        <i class="bi bi-bag-x fs-1"></i>
-                        <p class="mt-2">Chưa có sản phẩm nào trong giỏ hàng.</p>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="row mt-4 align-items-center" th:if="${!#lists.isEmpty(cartItems)}">
-            <div class="col-md-6 text-muted">
-                * Miễn phí vận chuyển cho đơn hàng từ 500k.
+        <div class="col-md-6 text-md-end">
+            <div class="mb-4">
+                <span class="total-label me-3">TỔNG CỘNG:</span>
+                <span class="total-amount" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
             </div>
-            <div class="col-md-6 text-end">
-                <h4 class="mb-3">Tổng cộng:
-                    <span class="text-danger fw-bold ms-2"
-                          th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
-                </h4>
-                <a th:href="@{/checkout}" class="btn btn-dark btn-lg px-5 py-3 fw-bold rounded-pill shadow">
-                    THANH TOÁN NGAY <i class="bi bi-credit-card ms-2"></i>
-                </a>
-                </a>
-            </div>
+            <a th:href="@{/checkout}" class="btn-black">
+                TIẾN HÀNH THANH TOÁN <i class="bi bi-arrow-right ms-2"></i>
+            </a>
         </div>
     </div>
 </div>

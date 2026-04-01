@@ -36,7 +36,6 @@ public class UserController {
         return "user/profile";
     }
 
-    // MỚI: Xử lý cập nhật thông tin cá nhân
     @PostMapping("/profile/update")
     public String updateProfile(@RequestParam String fullName,
                                 @RequestParam String email,
@@ -48,8 +47,6 @@ public class UserController {
         if (user == null) return "redirect:/login";
 
         User updatedUser = userService.updateProfile(user.getId(), fullName, email, phoneNumber, gender, birthday);
-
-        // Cập nhật lại user trong session để hiển thị đúng thông tin mới ở các trang khác (Header...)
         session.setAttribute("loggedInUser", updatedUser);
 
         return "redirect:/user/profile?success";
@@ -75,12 +72,33 @@ public class UserController {
         return "redirect:/user/addresses?success";
     }
 
+    // --- MỚI: Thiết lập địa chỉ mặc định ---
+    @PostMapping("/addresses/set-default/{addressId}")
+    public String setDefaultAddress(@PathVariable Long addressId, HttpSession session) {
+        User user = getLoggedInUser(session);
+        if (user == null) return "redirect:/login";
+
+        userService.setDefaultAddress(user.getId(), addressId);
+        return "redirect:/user/addresses?success";
+    }
+
+    // --- MỚI: Xóa địa chỉ ---
+    @GetMapping("/addresses/delete/{addressId}")
+    public String deleteAddress(@PathVariable Long addressId, HttpSession session) {
+        User user = getLoggedInUser(session);
+        if (user == null) return "redirect:/login";
+
+        // Logic trong service nên kiểm tra: không cho xóa nếu là địa chỉ mặc định
+        userService.deleteAddress(user.getId(), addressId);
+        return "redirect:/user/addresses?success";
+    }
+
     @GetMapping("/orders")
     public String showOrders(HttpSession session, Model model) {
         User user = getLoggedInUser(session);
         if (user == null) return "redirect:/login";
 
-        model.addAttribute("user", user); // Thêm user để sidebar hiển thị ảnh/tên
+        model.addAttribute("user", user);
         model.addAttribute("orders", orderRepository.findByUserId(user.getId()));
         model.addAttribute("activePage", "orders");
         return "user/orders";
